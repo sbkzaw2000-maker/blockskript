@@ -7,6 +7,17 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="startupLoading" class="visible">
+    <div class="startup-logo">BlockSkript</div>
+
+    <div class="startup-spinner"></div>
+
+    <div id="startupStatus">
+        Uruchamianie BlockSkript...
+    </div>
+
+    <div class="startup-progress"></div>
+</div>
   <header class="topbar">
     <div>
       <div class="brand-row">
@@ -143,7 +154,13 @@
           Wykonaj dla każdego gracza
         </div>
         <div class="block-palette" draggable="true" data-type="own_skript">
-         Twój skrypt
+          Twój skrypt
+        </div>
+        <div class="block-palette" draggable="true" data-type="own_trigger">
+          Wyzwalacz - trigger
+        </div>
+        <div class="block-palette" draggable="true" data-type="own_gui">
+          Własne gui
         </div>
       </section>
       <div id="trashDrop" class="trash-drop" aria-label="Kosz. Upuść tutaj, aby usunąć bloczek">

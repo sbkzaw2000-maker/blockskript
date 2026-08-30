@@ -1,6 +1,6 @@
 {
   "name": "BlockSkript",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "BlockSkript - kreator skript do minecraft",
   "main": "main.js",
   "scripts": {
@@ -27,6 +27,7 @@
     "files": [
       "main.js",
       "preload.js",
+      "server.js",
       "public/**/*",
       "package.json"
     ],
