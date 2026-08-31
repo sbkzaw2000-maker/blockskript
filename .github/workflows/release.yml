@@ -1,0 +1,55 @@
+name: BlockSkript Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run dist -- --publish always
+
+      - name: Set Release name and description
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          $version = $env:TAG -replace '^v', ''
+          $name = "BlockSkript v$version"
+
+          if (Test-Path "CHANGELOG.md") {
+            $body = Get-Content "CHANGELOG.md" -Raw
+          } else {
+            $body = "## 🚀 BlockSkript v$version`n`nNowa wersja BlockSkript."
+          }
+
+          $release = gh release view $env:TAG `
+            --repo "${{ github.repository }}" `
+            --json isDraft,isPrerelease
+
+          gh release edit $env:TAG `
+            --repo "${{ github.repository }}" `
+            --title "$name" `
+            --notes "$body"
