@@ -55,7 +55,7 @@ jobs:
                       "title": f"BlockSkript v{version}",
                       "description": (
                           "Dostępna jest nowa wersja **BlockSkript**\n\n"
-                          f"📦 Wersja `v{version}`\n``` ```\n"
+                          f"📦 Wersja `v{version}`\n"
                           "## Informacje o aktualizacji:\n"
                           f"{body}"
                       ),
