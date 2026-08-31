@@ -1,6 +1,13 @@
 name: BlockSkript Release Discord
 
 on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag wydania, np. v26.8.7"
+        required: true
+        default: "v26.8.7"
+
   push:
     tags:
       - "v*"
@@ -13,20 +20,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set release tag
+        id: tag
+        env:
+          MANUAL_TAG: ${{ inputs.tag }}
+          PUSH_TAG: ${{ github.ref_name }}
+        run: |
+          if [ -n "$MANUAL_TAG" ]; then
+            echo "tag=$MANUAL_TAG" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=$PUSH_TAG" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Get release information
-        id: release
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
         run: |
-          RELEASE=$(gh release view "${{ github.ref_name }}" \
-            --repo "${{ github.repository }}" \
-            --json name,body,url)
+          echo "Pobieram Release: $TAG"
 
-          echo "$RELEASE" > release.json
+          gh release view "$TAG" \
+            --repo "${{ github.repository }}" \
+            --json name,body,url > release.json
+
+          cat release.json
 
       - name: Send to Discord
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          TAG: ${{ steps.tag.outputs.tag }}
         run: |
           python3 - <<'PY'
           import json
@@ -52,7 +74,10 @@ jobs:
               }]
           }
 
-          data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+          data = json.dumps(
+              payload,
+              ensure_ascii=False
+          ).encode("utf-8")
 
           request = urllib.request.Request(
               os.environ["DISCORD_WEBHOOK"],
@@ -65,5 +90,5 @@ jobs:
           )
 
           with urllib.request.urlopen(request) as response:
-              print("Discord:", response.status)
+              print("Discord HTTP:", response.status)
           PY
