@@ -1,18 +1,18 @@
 {
   "name": "BlockSkript",
-  "version": "26.8.6",
+  "version": "26.8.7",
   "description": "BlockSkript - kreator skript do minecraft",
   "main": "main.js",
   "author": {
     "name": "Sebbeek"
   },
-    "scripts": {
+  "scripts": {
     "start": "electron .",
     "dev": "electron .",
     "build": "electron-builder --win nsis",
     "build:linux": "electron-builder --linux AppImage",
     "dist": "electron-builder",
-    "release": "electron-builder --publish always"
+    "release": "node release.js"
   },
   "dependencies": {
     "express": "^4.21.2",
@@ -25,11 +25,9 @@
   "build": {
     "appId": "pl.tornadocode.blockskript",
     "productName": "BlockSkript",
-
     "directories": {
       "output": "dist"
     },
-
     "files": [
       "main.js",
       "preload.js",
@@ -37,7 +35,6 @@
       "public/**/*",
       "package.json"
     ],
-
     "win": {
       "icon": "public/icon.ico",
       "target": [
@@ -50,7 +47,6 @@
       ],
       "artifactName": "BlockSkript-Setup-${version}.${ext}"
     },
-
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
@@ -58,7 +54,6 @@
       "createStartMenuShortcut": true,
       "shortcutName": "BlockSkript"
     },
-
     "publish": {
       "provider": "github",
       "owner": "sbkzaw2000-maker",
