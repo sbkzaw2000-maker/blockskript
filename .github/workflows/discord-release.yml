@@ -1,4 +1,3 @@
-```yaml
 name: BlockSkript Release Discord
 
 on:
@@ -65,4 +64,3 @@ jobs:
           with urllib.request.urlopen(request) as response:
               print("Discord HTTP:", response.status)
           PY
-```
