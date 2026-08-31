@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Skript Generator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="startupLoading" class="visible">
+    <div class="startup-logo">BlockSkript</div>
+
+    <div class="startup-spinner"></div>
+
+    <div id="startupStatus">
+        Uruchamianie BlockSkript...
+    </div>
+
+    <div class="startup-progress"></div>
+</div>
+  <header class="topbar">
+    <div>
+      <div class="brand-row">
+        <button id="menuBtn" class="menu-button" aria-label="Otwórz menu" aria-expanded="false" aria-controls="menu">≡</button>
+        <div class="logo" aria-label="Minecraft Skript Generator">
+        <span class="logo-word"><b>Block</b>Skript</span>
+        </div>
+      </div>
+      <div class="subtitle">Układaj klocki i generuj Skript</div>
+    </div>
+    <div class="toolbar">
+      <button id="newBtn" class="secondary">＋ Nowy</button>
+      <button id="exampleBtn" class="secondary">★ Przykład</button>
+      <button id="saveBtn" class="secondary">💾 Zapisz</button>
+      <button id="copyBtn" class="secondary">📋 Kopiuj kod</button>
+      <button id="exportBtn" class="primary">⬇ Eksportuj .sk</button>
+    </div>
+  </header>
+
+  <nav id="menu" class="category-menu" hidden aria-label="Menu Skript">
+    <div class="theme-heading">WYGLĄD</div>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false">
+      <span class="theme-icon" aria-hidden="true">☀</span>
+      <span class="theme-label">Tryb jasny</span>
+    </button>
+    <div class="menu-actions">
+      <button id="importBtn">↥ Importuj / Skript</button>
+      <button id="templatesBtn">★ Gotowe Skripty</button>
+      <button id="updateBtn">↻ Sprawdź aktualizacje</button>
+      <button id="aboutBtn">ⓘ O BlockSkript</button>
+    </div>
+  </nav>
+
+  <main class="layout">
+    <aside class="sidebar" aria-label="KLOCKI - wszystkie opcje Skript">
+      <div class="panel-title">KLOCKI • WSZYSTKIE OPCJE</div>
+
+      <section>
+        <h3 class="event-title">🟦 ZDARZENIA</h3>
+        <div class="block-palette" draggable="true" data-type="event_join">
+          <b>Kiedy gracz dołącza</b>
+        </div>
+        <div class="block-palette" draggable="true" data-type="event_death">
+          <b>Kiedy gracz umiera</b>
+        </div>
+        <div class="block-palette" draggable="true" data-type="event_right_click">
+          <b>Kiedy gracz kliknie prawym</b>
+        </div>
+        <div class="block-palette" draggable="true" data-type="event_chat">
+          <b>Kiedy gracz napisze na czacie</b>
+        </div>
+        <div class="block-palette" draggable="true" data-type="own_command">
+          <b>Kiedy gracz wpisze komendę</b>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="condition-title">🟨 WARUNKI</h3>
+        <div class="block-palette" draggable="true" data-type="if_tool">
+          Jeśli gracz ma przedmiot
+        </div>
+        <div class="block-palette" draggable="true" data-type="if_world">
+          Jeśli gracz jest w świecie
+        </div>
+        <div class="block-palette" draggable="true" data-type="if_message_contains">
+          Jeśli wiadomość zawiera
+        </div>
+        <div class="block-palette" draggable="true" data-type="if_permission">
+          Jeśli gracz ma permisję
+        </div>
+        <div class="block-palette" draggable="true" data-type="if_loop_permission">
+          Jeśli gracz w pętli ma permisję
+        </div>
+      </section>
+
+      <section>
+        <h3 class="action-title">🟩 AKCJE</h3>
+        <div class="block-palette" draggable="true" data-type="send_message">
+          Wyślij wiadomość
+        </div>
+        <div class="block-palette" draggable="true" data-type="send_loop_message">
+          Wyślij wiadomość do gracza w pętli
+        </div>
+        <div class="block-palette" draggable="true" data-type="send_permission_message">
+          Wyślij wiadomość do gracza z permisją
+        </div>
+        <div class="block-palette" draggable="true" data-type="cancel_event">
+          Anuluj zdarzenie
+        </div>
+        <div class="block-palette" draggable="true" data-type="give_item">
+          Daj przedmiot
+        </div>
+        <div class="block-palette" draggable="true" data-type="money">
+          Dodaj pieniądze
+        </div>
+        <div class="block-palette" draggable="true" data-type="remove_money">
+          Usuń pieniądze
+        </div>
+        <div class="block-palette" draggable="true" data-type="gamemode">
+          Zmień gamemode
+        </div>
+        <div class="block-palette" draggable="true" data-type="give_xp">
+          Daj XP
+        </div>
+        <div class="block-palette" draggable="true" data-type="set_rank">
+          Ustaw rangę gracza
+        </div>
+        <div class="block-palette" draggable="true" data-type="add_points">
+          Dodaj punkty
+        </div>
+        <div class="block-palette" draggable="true" data-type="console_command">
+          Wykonaj komendę jako konsola
+        </div>
+        <div class="block-palette" draggable="true" data-type="teleport">
+          Teleportuj gracza
+        </div>
+        <div class="block-palette" draggable="true" data-type="effect">
+          Nadaj efekt
+        </div>
+        <div class="block-palette" draggable="true" data-type="set_variable">
+          Ustaw zmienną
+        </div>
+      </section>
+
+      <section>
+        <h3 class="other-title">🟥 INNE</h3>
+        <div class="block-palette" draggable="true" data-type="wait">
+          Czekaj
+        </div>
+        <div class="block-palette" draggable="true" data-type="comment">
+          Komentarz
+        </div>
+        <div class="block-palette" draggable="true" data-type="loop_players">
+          Wykonaj dla każdego gracza
+        </div>
+        <div class="block-palette" draggable="true" data-type="own_skript">
+          Twój skrypt
+        </div>
+        <div class="block-palette" draggable="true" data-type="own_trigger">
+          Wyzwalacz - trigger
+        </div>
+        <div class="block-palette" draggable="true" data-type="own_gui">
+          Własne gui
+        </div>
+      </section>
+      <div id="trashDrop" class="trash-drop" aria-label="Kosz. Upuść tutaj, aby usunąć bloczek">
+        <span aria-hidden="true">🗑</span>
+        <strong>Upuść tutaj, aby usunąć</strong>
+      </div>
+    </aside>
+
+    <section class="workspace-wrap">
+      <div class="workspace-head">
+        <span>OBSZAR SKRYPTU</span>
+        <span class="hint">LPM: przesuń • scroll: zoom • Shift + scroll: lewo/prawo</span>
+      </div>
+      <div id="workspace" class="workspace">
+        <div id="emptyState" class="empty">
+          <div class="empty-icon">🧩</div>
+          <h2>Upuść tutaj</h2>
+          <p>Przeciągnij bloczek z panelu po lewej stronie.</p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="code-panel">
+      <div class="code-head">
+        <span>WYGENEROWANY SKRIPT</span>
+        <span class="status" id="status">● GOTOWE</span>
+      </div>
+      <pre id="code"><code></code></pre>
+      <div class="code-footer">
+        <span>Skript • Minecraft 1.21+</span>
+        <button id="clearBtn" class="danger">🗑 Wyczyść</button>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="discord-bar">
+    <a href="https://dc.gg/tornadocode.pl" target="_blank" rel="noreferrer" aria-label="Dołącz do Discorda TornadoCode">
+      <span class="discord-mark" aria-hidden="true"></span>
+      <span>discord</span>
+      <strong>dc.gg/tornadocode.pl</strong>
+    </a>
+  </footer>
+
+  <input id="importInput" type="file" accept=".sk,.txt,.json,text/plain,application/json" hidden>
+  <div id="optionsModal" class="modal" hidden>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="optionsTitle">
+      <div class="modal-head">
+        <h2 id="optionsTitle">KLOCKI</h2>
+        <button id="closeOptionsBtn" class="modal-close" aria-label="Zamknij">×</button>
+      </div>
+      <div id="optionsList" class="options-list"></div>
+    </div>
+  </div>
+  <div id="templatesModal" class="modal" hidden>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="templatesTitle">
+      <div class="modal-head">
+        <h2 id="templatesTitle">Gotowe Skripty</h2>
+        <button id="closeTemplatesBtn" class="modal-close" aria-label="Zamknij">×</button>
+      </div>
+      <div id="templatesList" class="templates-list"></div>
+    </div>
+  </div>
+  <div id="loadingOverlay" class="loading-overlay" role="status" aria-live="polite">
+    <div class="loading-card">
+      <span class="loading-spinner" aria-hidden="true"></span>
+      <strong id="loadingText">Ładowanie generatora...</strong>
+    </div>
+  </div>
+  <div id="updateBadge" class="update-badge" hidden></div>
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
