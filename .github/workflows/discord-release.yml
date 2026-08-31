@@ -1,0 +1,68 @@
+name: BlockSkript Release Discord
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  discord:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Release to Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+        run: |
+          echo "Release: $RELEASE_NAME"
+          echo "Tag: $RELEASE_TAG"
+
+          if [[ ! "$RELEASE_NAME" =~ ^BlockSkript\ v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Nie jest to Release BlockSkript."
+            exit 0
+          fi
+
+          VERSION="${RELEASE_TAG#v}"
+
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          webhook = os.environ["DISCORD_WEBHOOK"]
+          version = os.environ["RELEASE_TAG"][1:]
+          body = os.environ.get("RELEASE_BODY") or "Brak informacji o aktualizacji."
+
+          payload = {
+              "username": "BlockSkript",
+              "embeds": [
+                  {
+                      "title": f"# BlockSkript v{version}",
+                      "description": (
+                          "Dostępna jest nowa wersja **BlockSkript**\n\n"
+                          f"📦 Wersja `v{version}`\n\n"
+                          "## Informacje o aktualizacji:\n"
+                          f"{body}"
+                      ),
+                      "color": 5763719
+                  }
+              ]
+          }
+
+          data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+
+          request = urllib.request.Request(
+              webhook,
+              data=data,
+              headers={
+                  "Content-Type": "application/json",
+                  "User-Agent": "BlockSkript-GitHub-Actions"
+              },
+              method="POST"
+          )
+
+          with urllib.request.urlopen(request) as response:
+              print("Discord HTTP:", response.status)
+          PY
