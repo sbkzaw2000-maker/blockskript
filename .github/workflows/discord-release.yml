@@ -44,10 +44,10 @@ jobs:
               "username": "BlockSkript",
               "embeds": [
                   {
-                      "title": "# BlockSkript v26.8.6",
+                      "title": "BlockSkript v26.8.6",
                       "description": (
                           "Dostępna jest nowa wersja **BlockSkript**\n\n"
-                          "📦 Wersja `v26.8.6`\n\n"
+                          "📦 Wersja **Wiadomość testowa nie posiada wersji!**\n"
                           "## Informacje o aktualizacji:\n"
                           "🧪 To jest **wiadomość testowa**."
                       ),
@@ -154,10 +154,10 @@ jobs:
               "username": "BlockSkript",
               "embeds": [
                   {
-                      "title": f"# BlockSkript {version}",
+                      "title": f"BlockSkript {version}",
                       "description": (
                           "Dostępna jest nowa wersja **BlockSkript**\n\n"
-                          f"📦 Wersja `{version}`\n\n"
+                          f"📦 Wersja `{version}`\n"
                           f"{changelog}"
                       ),
                       "color": 5763719
