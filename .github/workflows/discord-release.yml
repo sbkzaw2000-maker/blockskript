@@ -1,67 +1,67 @@
-name: BlockSkript Release → Discord
+name: BlockSkript Release Discord
 
 on:
-release:
-types: [published]
+  release:
+    types:
+      - published
 
 jobs:
-discord:
-runs-on: ubuntu-latest
+  discord:
+    name: Send Discord Embed
+    runs-on: ubuntu-latest
 
-steps:
-  - name: Wyślij Release na Discord
-    env:
-      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-      RELEASE_NAME: ${{ github.event.release.name }}
-      RELEASE_TAG: ${{ github.event.release.tag_name }}
-      RELEASE_BODY: ${{ github.event.release.body }}
-    run: |
-      if [[ ! "$RELEASE_NAME" =~ ^BlockSkript\ v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        echo "To nie jest Release BlockSkript: $RELEASE_NAME"
-        exit 0
-      fi
+    steps:
+      - name: Send Release to Discord
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+        run: |
+          if [[ ! "$RELEASE_NAME" =~ ^BlockSkript\ v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Ignoring release: $RELEASE_NAME"
+            exit 0
+          fi
 
-      python3 - <<'PY'
-      import json
-      import os
-      import urllib.request
+          VERSION="${RELEASE_TAG#v}"
 
-      webhook = os.environ["DISCORD_WEBHOOK"]
-      tag = os.environ["RELEASE_TAG"]
-      body = os.environ.get("RELEASE_BODY") or "Brak informacji o aktualizacji."
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
 
-      version = tag.removeprefix("v")
+          webhook = os.environ["WEBHOOK"]
+          version = os.environ["RELEASE_TAG"].removeprefix("v")
+          body = os.environ.get("RELEASE_BODY") or "Brak informacji o aktualizacji."
 
-      payload = {
-          "username": "BlockSkript",
-          "embeds": [
-              {
-                  "title": f"BlockSkript v{version}",
-                  "description": (
-                      "Dostępna jest nowa wersja **BlockSkript**\n\n"
-                      f"📦 Wersja `v{version}`\n\n"
-                      "## Informacje o aktualizacji:\n"
-                      f"{body}"
-                  ),
-                  "color": 5763719
-              }
-          ]
-      }
+          payload = {
+              "username": "BlockSkript",
+              "embeds": [
+                  {
+                      "title": f"BlockSkript v{version}",
+                      "description": (
+                          "Dostępna jest nowa wersja **BlockSkript**\n\n"
+                          f"📦 Wersja `v{version}`\n\n"
+                          "## Informacje o aktualizacji:\n"
+                          f"{body}"
+                      ),
+                      "color": 5763719
+                  }
+              ]
+          }
 
-      data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+          data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
 
-      request = urllib.request.Request(
-          webhook,
-          data=data,
-          headers={
-              "Content-Type": "application/json",
-              "User-Agent": "BlockSkript-GitHub-Actions"
-          },
-          method="POST"
-      )
+          request = urllib.request.Request(
+              webhook,
+              data=data,
+              headers={
+                  "Content-Type": "application/json",
+                  "User-Agent": "BlockSkript"
+              },
+              method="POST"
+          )
 
-      with urllib.request.urlopen(request) as response:
-          print("Discord HTTP:", response.status)
-          if response.status < 200 or response.status >= 300:
-              raise Exception("Discord zwrócił błąd")
-      PY
+          with urllib.request.urlopen(request) as response:
+              print("Discord:", response.status)
+          PY
