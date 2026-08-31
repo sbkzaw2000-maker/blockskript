@@ -26,11 +26,6 @@
     "appId": "pl.tornadocode.blockskript",
     "productName": "BlockSkript",
 
-    "releaseInfo": {
-    "releaseName": "BlockSkript v${version}",
-    "releaseNotesFile": "CHANGELOG.md"
-  },
-
     "directories": {
       "output": "dist"
     },
