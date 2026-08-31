@@ -1,8 +1,9 @@
+```yaml
 name: BlockSkript Release Discord
 
 on:
   release:
-    types: [published]
+    types: [edited]
 
 permissions:
   contents: read
@@ -12,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Send release to Discord
+      - name: Send edited release to Discord
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           RELEASE_NAME: ${{ github.event.release.name }}
@@ -64,3 +65,4 @@ jobs:
           with urllib.request.urlopen(request) as response:
               print("Discord HTTP:", response.status)
           PY
+```
