@@ -2,48 +2,96 @@ name: BlockSkript Release Discord
 
 on:
   release:
-    types: [published]
-
-permissions:
-  contents: read
+    types:
+      - published
 
 jobs:
   discord:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
-      - name: Send edited release to Discord
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          RELEASE_NAME: ${{ github.event.release.name }}
-          RELEASE_BODY: ${{ github.event.release.body }}
-          RELEASE_URL: ${{ github.event.release.html_url }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sprawdź CHANGELOG
         run: |
-          python3 - <<'PY'
+          if [ ! -f CHANGELOG.md ]; then
+            echo "Brak pliku CHANGELOG.md"
+            exit 1
+          fi
+
+      - name: Ustaw opis Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ github.event.release.id }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          python3 <<'PY'
           import json
           import os
           import urllib.request
 
-          name = os.environ.get("RELEASE_NAME") or (
-              "BlockSkript " + os.environ["RELEASE_TAG"]
+          repository = os.environ["REPOSITORY"]
+          release_id = os.environ["RELEASE_ID"]
+          token = os.environ["GH_TOKEN"]
+
+          with open("CHANGELOG.md", "r", encoding="utf-8") as file:
+              changelog = file.read().strip()
+
+          url = f"https://api.github.com/repos/{repository}/releases/{release_id}"
+
+          data = json.dumps({
+              "body": changelog
+          }).encode("utf-8")
+
+          request = urllib.request.Request(
+              url,
+              data=data,
+              method="PATCH",
+              headers={
+                  "Authorization": f"Bearer {token}",
+                  "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28",
+                  "Content-Type": "application/json"
+              }
           )
 
-          body = os.environ.get("RELEASE_BODY") or \
-              "Brak informacji o aktualizacji."
+          with urllib.request.urlopen(request) as response:
+              print("GitHub Release zaktualizowany:", response.status)
+          PY
 
-          url = os.environ["RELEASE_URL"]
+      - name: Wyślij CHANGELOG na Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          webhook = os.environ["DISCORD_WEBHOOK"]
+          version = os.environ["RELEASE_TAG"]
+
+          with open("CHANGELOG.md", "r", encoding="utf-8") as file:
+              changelog = file.read().strip()
 
           payload = {
               "username": "BlockSkript",
-              "embeds": [{
-                  "title": name,
-                  "description": body,
-                  "url": url,
-                  "footer": {
-                      "text": "BlockSkript • GitHub Releases"
+              "embeds": [
+                  {
+                      "title": f"# BlockSkript {version}",
+                      "description": (
+                          "Dostępna jest nowa wersja **BlockSkript**\n\n"
+                          f"📦 Wersja `{version}`\n\n"
+                          f"{changelog}"
+                      ),
+                      "color": 5763719
                   }
-              }]
+              ]
           }
 
           data = json.dumps(
@@ -52,15 +100,16 @@ jobs:
           ).encode("utf-8")
 
           request = urllib.request.Request(
-              os.environ["DISCORD_WEBHOOK"],
+              webhook,
               data=data,
+              method="POST",
               headers={
                   "Content-Type": "application/json",
-                  "User-Agent": "BlockSkript"
-              },
-              method="POST"
+                  "User-Agent": "BlockSkript-GitHub-Actions"
+              }
           )
 
           with urllib.request.urlopen(request) as response:
-              print("Discord HTTP:", response.status)
+              print("Discord:", response.status)
+              print("Wysłano poprawnie.")
           PY
