@@ -84,5 +84,3 @@ steps:
               sys.exit(1)
 
       print(f"Wysłano Discord Embed dla BlockSkript {tag}")
-```
-
