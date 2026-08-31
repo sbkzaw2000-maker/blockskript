@@ -1,6 +1,6 @@
 name: BlockSkript Release Discord
 
-on:
+"on":
   release:
     types:
       - published
