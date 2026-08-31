@@ -1,0 +1,68 @@
+name: BlockSkript Release → Discord
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  discord:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Wyślij Release na Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+
+        run: |
+          if [[ ! "$RELEASE_NAME" =~ ^BlockSkript\ v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release '$RELEASE_NAME' nie pasuje do BlockSkript v{wersja}."
+            exit 0
+          fi
+
+          VERSION="${RELEASE_TAG#v}"
+
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          webhook = os.environ["DISCORD_WEBHOOK"]
+          release_body = os.environ["RELEASE_BODY"]
+          version = os.environ["RELEASE_TAG"].removeprefix("v")
+
+          payload = {
+              "username": "BlockSkript",
+              "embeds": [
+                  {
+                      "title": f"# BlockSkript v{version}",
+                      "description": (
+                          "Dostępna jest nowa wersja **BlockSkript**\n\n"
+                          f"📦 Wersja `v{version}`\n"
+                          "```\n"
+                          "```\n"
+                          "## Informacje o aktualizacji:\n"
+                          f"{release_body or 'Brak informacji o aktualizacji.'}"
+                      ),
+                      "color": 5763719
+                  }
+              ]
+          }
+
+          data = json.dumps(payload).encode("utf-8")
+
+          request = urllib.request.Request(
+              webhook,
+              data=data,
+              headers={
+                  "Content-Type": "application/json",
+                  "User-Agent": "BlockSkript-GitHub-Actions"
+              },
+              method="POST"
+          )
+
+          with urllib.request.urlopen(request) as response:
+              print(f"Discord HTTP: {response.status}")
+          PY
