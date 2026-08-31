@@ -2,7 +2,7 @@ name: BlockSkript Release Discord
 
 on:
   release:
-    types: [edited]
+    types: [published]
 
 permissions:
   contents: read
