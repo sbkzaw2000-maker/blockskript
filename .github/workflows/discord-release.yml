@@ -1,15 +1,9 @@
+```yaml
 name: BlockSkript Release Discord
 
 on:
   release:
     types: [published]
-
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Tag istniejącego Release, np. v26.8.8"
-        required: true
-        default: "v26.8.8"
 
 permissions:
   contents: read
@@ -19,42 +13,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get release information
-        env:
-          GH_TOKEN: ${{ github.token }}
-          MANUAL_TAG: ${{ inputs.tag }}
-          EVENT_TAG: ${{ github.event.release.tag_name }}
-        run: |
-          if [ -n "$MANUAL_TAG" ]; then
-            TAG="$MANUAL_TAG"
-          else
-            TAG="$EVENT_TAG"
-          fi
-
-          echo "TAG=$TAG" >> "$GITHUB_ENV"
-          echo "Pobieram Release: $TAG"
-
-          gh release view "$TAG" \
-            --repo "${{ github.repository }}" \
-            --json name,body,url > release.json
-
-          cat release.json
-
-      - name: Send to Discord
+      - name: Send release to Discord
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           python3 - <<'PY'
           import json
           import os
           import urllib.request
 
-          with open("release.json", encoding="utf-8") as f:
-              release = json.load(f)
+          name = os.environ.get("RELEASE_NAME") or (
+              "BlockSkript " + os.environ["RELEASE_TAG"]
+          )
 
-          name = release["name"]
-          body = release.get("body") or "Brak informacji o aktualizacji."
-          url = release["url"]
+          body = os.environ.get("RELEASE_BODY") or \
+              "Brak informacji o aktualizacji."
+
+          url = os.environ["RELEASE_URL"]
 
           payload = {
               "username": "BlockSkript",
@@ -86,3 +65,4 @@ jobs:
           with urllib.request.urlopen(request) as response:
               print("Discord HTTP:", response.status)
           PY
+```
