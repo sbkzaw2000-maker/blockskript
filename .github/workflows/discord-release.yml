@@ -1,49 +1,136 @@
 name: BlockSkript Release Discord
 
 on:
-  release:
-    types: [published]
-
-permissions:
-  contents: read
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Tag istniejącego Release, np. 'v26.9.1'"
+        required: true
+        type: string
 
 jobs:
   discord:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+
     steps:
-      - name: Send release to Discord
+
+      - name: Pobierz repozytorium
+        uses: actions/checkout@v4
+
+      - name: Sprawdź webhook
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          RELEASE_NAME: ${{ github.event.release.name }}
-          RELEASE_BODY: ${{ github.event.release.body }}
-          RELEASE_URL: ${{ github.event.release.html_url }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          python3 - <<'PY'
+          if [ -z "$DISCORD_WEBHOOK" ]; then
+            echo "BŁĄD: Brak sekretu DISCORD_WEBHOOK!"
+            exit 1
+          fi
+
+      - name: Pobierz istniejący Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          VERSION="${VERSION#v}"
+          TAG="v${VERSION}"
+
+          echo "===================================="
+          echo "Szukam Release:"
+          echo "$TAG"
+          echo "===================================="
+
+          if ! gh release view "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --json tagName,name \
+            > release.json; then
+
+            echo ""
+            echo "===================================="
+            echo "BŁĄD: Nie znaleziono Release!"
+            echo "Szukany tag: $TAG"
+            echo "===================================="
+            echo ""
+            echo "Dostępne Release:"
+            gh release list \
+              --repo "$GITHUB_REPOSITORY" \
+              --limit 20
+
+            exit 1
+          fi
+
+          echo ""
+          echo "===================================="
+          echo "ZNALEZIONO RELEASE!"
+          echo "===================================="
+
+          cat release.json
+
+      - name: Sprawdź CHANGELOG
+        run: |
+          if [ ! -f CHANGELOG.md ]; then
+            echo "BŁĄD: Brak pliku CHANGELOG.md!"
+            exit 1
+          fi
+
+          echo "CHANGELOG.md znaleziony."
+
+      - name: Wyślij Embed na Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          VERSION=$(jq -r '.tagName' release.json)
+
+          echo "Wysyłam wersję: $VERSION"
+
+          python3 <<'PY'
           import json
           import os
           import urllib.request
+          import urllib.error
 
-          name = os.environ.get("RELEASE_NAME") or (
-              "BlockSkript " + os.environ["RELEASE_TAG"]
+          webhook = os.environ["DISCORD_WEBHOOK"]
+
+          with open(
+              "release.json",
+              "r",
+              encoding="utf-8"
+          ) as file:
+              release = json.load(file)
+
+          version = release["tagName"]
+
+          with open(
+              "CHANGELOG.md",
+              "r",
+              encoding="utf-8"
+          ) as file:
+              changelog = file.read().strip()
+
+          if not changelog:
+              changelog = "Brak informacji o aktualizacji."
+
+          description = (
+              "Dostępna jest nowa wersja **BlockSkript**\n\n"
+              f"📦 Wersja `{version}`\n\n"
+              "## Informacje o aktualizacji:\n"
+              f"{changelog}"
           )
-
-          body = os.environ.get("RELEASE_BODY") or \
-              "Brak informacji o aktualizacji."
-
-          url = os.environ["RELEASE_URL"]
 
           payload = {
               "username": "BlockSkript",
-              "embeds": [{
-                  "title": name,
-                  "description": body,
-                  "url": url,
-                  "footer": {
-                      "text": "BlockSkript • GitHub Releases"
+              "embeds": [
+                  {
+                      "title": f"BlockSkript {version}",
+                      "description": description,
+                      "color": 5763719,
+                      "footer": {
+                          "text": "BlockSkript • Sebbeek"
+                      }
                   }
-              }]
+              ]
           }
 
           data = json.dumps(
@@ -52,15 +139,32 @@ jobs:
           ).encode("utf-8")
 
           request = urllib.request.Request(
-              os.environ["DISCORD_WEBHOOK"],
+              webhook,
               data=data,
+              method="POST",
               headers={
                   "Content-Type": "application/json",
                   "User-Agent": "BlockSkript"
-              },
-              method="POST"
+              }
           )
 
-          with urllib.request.urlopen(request) as response:
-              print("Discord HTTP:", response.status)
+          try:
+              with urllib.request.urlopen(request) as response:
+                  print("")
+                  print("====================================")
+                  print("SUKCES!")
+                  print(f"BlockSkript {version} wysłany na Discord.")
+                  print("Discord HTTP:", response.status)
+                  print("====================================")
+
+          except urllib.error.HTTPError as e:
+              print("")
+              print("BŁĄD DISCORD:", e.code)
+              print(
+                  e.read().decode(
+                      "utf-8",
+                      errors="replace"
+                  )
+              )
+              raise
           PY
