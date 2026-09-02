@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Tag istniejącego Release, np. 'v26.8.9'"
+        description: "Tag istniejącego Release, np. 'v26.8.6'"
         required: true
         type: string
 
@@ -19,10 +19,12 @@ jobs:
       - name: Pobierz repozytorium
         uses: actions/checkout@v4
 
-      - name: Sprawdź CHANGELOG
+      - name: Sprawdź webhook
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
-          if [ ! -f CHANGELOG.md ]; then
-            echo "BŁĄD: Brak pliku CHANGELOG.md!"
+          if [ -z "$DISCORD_WEBHOOK" ]; then
+            echo "BŁĄD: Brak sekretu DISCORD_WEBHOOK!"
             exit 1
           fi
 
@@ -42,14 +44,13 @@ jobs:
           version = os.environ["VERSION"].strip()
           repository = os.environ["REPOSITORY"]
 
-          # Automatycznie dodaj "v", jeśli użytkownik podał np. 26.8.9
           if not version.startswith("v"):
               version = "v" + version
 
           print("Szukam Release dla taga:", version)
           print("Repozytorium:", repository)
 
-          url = f"https://discord.com/channels/1529961118334844968/1543930472629805176"
+          url = f"https://api.github.com/repos/{repository}/releases"
 
           request = urllib.request.Request(
               url,
@@ -63,11 +64,18 @@ jobs:
 
           try:
               with urllib.request.urlopen(request) as response:
-                  releases = json.loads(response.read().decode("utf-8"))
+                  releases = json.loads(
+                      response.read().decode("utf-8")
+                  )
 
           except urllib.error.HTTPError as e:
               print("BŁĄD GITHUB API:", e.code)
-              print(e.read().decode("utf-8", errors="replace"))
+              print(
+                  e.read().decode(
+                      "utf-8",
+                      errors="replace"
+                  )
+              )
               raise SystemExit(1)
 
           found = None
@@ -92,7 +100,11 @@ jobs:
               print("====================================")
               raise SystemExit(1)
 
-          with open("/tmp/release.json", "w", encoding="utf-8") as file:
+          with open(
+              "/tmp/release.json",
+              "w",
+              encoding="utf-8"
+          ) as file:
               json.dump(
                   found,
                   file,
@@ -105,9 +117,18 @@ jobs:
           print("ZNALEZIONO RELEASE!")
           print("Nazwa:", found.get("name"))
           print("Tag:", found.get("tag_name"))
-          print("URL:", found.get("html_url"))
           print("====================================")
           PY
+
+      - name: Pobierz CHANGELOG
+        run: |
+          if [ ! -f CHANGELOG.md ]; then
+            echo "BŁĄD: Brak pliku CHANGELOG.md!"
+            exit 1
+          fi
+
+          echo "CHANGELOG.md znaleziony."
+
       - name: Wyślij ponownie na Discord
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
@@ -120,14 +141,24 @@ jobs:
 
           webhook = os.environ["DISCORD_WEBHOOK"]
 
-          with open("/tmp/release.json", "r", encoding="utf-8") as file:
+          with open(
+              "/tmp/release.json",
+              "r",
+              encoding="utf-8"
+          ) as file:
               release = json.load(file)
 
           version = release["tag_name"]
-          release_name = release.get("name") or f"BlockSkript {version}"
-          
-          with open("CHANGELOG.md", "r", encoding="utf-8") as file:
+
+          with open(
+              "CHANGELOG.md",
+              "r",
+              encoding="utf-8"
+          ) as file:
               changelog = file.read().strip()
+
+          if not changelog:
+              changelog = "Brak informacji o aktualizacji."
 
           description = (
               "Dostępna jest nowa wersja **BlockSkript**\n\n"
@@ -167,11 +198,21 @@ jobs:
 
           try:
               with urllib.request.urlopen(request) as response:
-                  print("Discord HTTP:", response.status)
-                  print("Ponowna wysyłka zakończona pomyślnie!")
+                  print(
+                      "Discord HTTP:",
+                      response.status
+                  )
+                  print(
+                      "Ponowna wysyłka zakończona pomyślnie!"
+                  )
 
           except urllib.error.HTTPError as e:
               print("BŁĄD DISCORD:", e.code)
-              print(e.read().decode("utf-8", errors="replace"))
+              print(
+                  e.read().decode(
+                      "utf-8",
+                      errors="replace"
+                  )
+              )
               raise
           PY
