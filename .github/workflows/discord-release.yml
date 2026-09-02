@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Tag istniejącego Release, np. v26.8.9"
+        description: "Tag istniejącego Release, np. 'v26.8.9'"
         required: true
         type: string
 
@@ -143,7 +143,6 @@ jobs:
                   {
                       "title": f"# BlockSkript {version}",
                       "description": description,
-                      "url": release_url,
                       "color": 5763719,
                       "footer": {
                           "text": "BlockSkript • GitHub Releases"
