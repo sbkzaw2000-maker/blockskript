@@ -1,3 +1,3 @@
 DODANO:
 
-- Powiększanie ektanu generowania skryptów,
+- Powiększanie ekanu generowania skryptów,
