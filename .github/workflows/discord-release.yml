@@ -39,14 +39,17 @@ jobs:
           import urllib.error
 
           token = os.environ["GH_TOKEN"]
-          version = os.environ["VERSION"]
+          version = os.environ["VERSION"].strip()
           repository = os.environ["REPOSITORY"]
 
+          # Automatycznie dodaj "v", jeśli użytkownik podał np. 26.8.9
           if not version.startswith("v"):
-              print("BŁĄD: Wersja musi zaczynać się od v, np. v26.8.9")
-              raise SystemExit(1)
+              version = "v" + version
 
-          url = f"https://api.github.com/repos/{repository}/releases/tags/{version}"
+          print("Szukam Release dla taga:", version)
+          print("Repozytorium:", repository)
+
+          url = f"https://api.github.com/repos/{repository}/releases"
 
           request = urllib.request.Request(
               url,
@@ -60,22 +63,51 @@ jobs:
 
           try:
               with urllib.request.urlopen(request) as response:
-                  release = json.loads(response.read().decode("utf-8"))
+                  releases = json.loads(response.read().decode("utf-8"))
 
           except urllib.error.HTTPError as e:
+              print("BŁĄD GITHUB API:", e.code)
+              print(e.read().decode("utf-8", errors="replace"))
+              raise SystemExit(1)
+
+          found = None
+
+          for release in releases:
+              print(
+                  "Release:",
+                  release.get("tag_name"),
+                  "|",
+                  release.get("name")
+              )
+
+              if release.get("tag_name") == version:
+                  found = release
+                  break
+
+          if found is None:
+              print("")
+              print("====================================")
               print("BŁĄD: Nie znaleziono Release!")
-              print("HTTP:", e.code)
+              print("Szukany tag:", version)
+              print("====================================")
               raise SystemExit(1)
 
           with open("/tmp/release.json", "w", encoding="utf-8") as file:
-              json.dump(release, file, ensure_ascii=False, indent=2)
+              json.dump(
+                  found,
+                  file,
+                  ensure_ascii=False,
+                  indent=2
+              )
 
-          print("Znaleziono Release:")
-          print("Nazwa:", release.get("name"))
-          print("Tag:", release.get("tag_name"))
-          print("URL:", release.get("html_url"))
+          print("")
+          print("====================================")
+          print("ZNALEZIONO RELEASE!")
+          print("Nazwa:", found.get("name"))
+          print("Tag:", found.get("tag_name"))
+          print("URL:", found.get("html_url"))
+          print("====================================")
           PY
-
       - name: Wyślij ponownie na Discord
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
