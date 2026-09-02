@@ -196,6 +196,18 @@ button {
   box-shadow: 0 2px 6px rgba(15, 23, 42, .2);
 }
 
+body.readable-font,
+body.readable-font button,
+body.readable-font input,
+body.readable-font textarea,
+body.readable-font select {
+  font-weight: 700;
+}
+
+body.readable-font #code {
+  font-weight: 700;
+}
+
 .theme-toggle.theme-pulse {
   animation: theme-pulse .42s ease;
 }
@@ -358,7 +370,8 @@ body.light-theme #code {
   flex: 1 1 auto;
   min-height: 0;
   display: grid;
-  grid-template-columns: 240px minmax(400px, 1fr) 410px;
+  grid-template-columns: 240px minmax(0, 1fr) calc(410px + var(--code-panel-extra-width));
+  --code-panel-extra-width: 0px;
 }
 
 .discord-bar {
@@ -460,6 +473,31 @@ body.dragging-block .trash-drop {
 
 .code-panel {
   border-left: 1px solid var(--border);
+  position: relative;
+}
+
+.code-panel::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: col-resize;
+}
+
+.code-panel:hover::before {
+  background-color: var(--accent);
+  opacity: 0.3;
+}
+
+body.resizing-code-panel {
+  user-select: none;
+}
+
+body.resizing-code-panel .code-panel::before {
+  background-color: var(--accent);
+  opacity: 0.6;
 }
 
 .panel-title {
@@ -760,6 +798,7 @@ body.dragging-block .drop-zone.active {
 
 .code-head {
   background: #0d131b;
+  min-width: 0;
 }
 
 .status {
@@ -784,9 +823,22 @@ body.dragging-block .drop-zone.active {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
   background: #0d131b;
   color: var(--muted);
   font-size: 11px;
+}
+
+.code-footer > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.code-footer button {
+  flex: 0 0 auto;
 }
 
 .danger {

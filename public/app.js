@@ -18,6 +18,23 @@ let panStartShiftY = 0;
 let workspaceShiftX = 0;
 let workspaceShiftY = 0;
 
+let codePanelWidth = 0;
+let isResizingCodePanel = false;
+let resizeStartX = 0;
+let resizeStartWidth = 0;
+const codePanel = document.querySelector(".code-panel");
+const layout = document.querySelector(".layout");
+const maxCodePanelWidth = 567; // ~15cm at 96 DPI
+
+function updateCodePanelWidth() {
+    if (layout) {
+        layout.style.setProperty(
+            "--code-panel-extra-width",
+            `${codePanelWidth}px`
+        );
+    }
+}
+
 
 /* =========================================================
    DEFINICJE KLOCKÓW
@@ -1536,7 +1553,7 @@ const readyScripts = [
                 }
             ]
         ]
-    }
+}
 ];
 
 
@@ -2550,6 +2567,91 @@ workspace.addEventListener(
 
 
 /* =========================================================
+   CODE PANEL RESIZE
+========================================================= */
+
+codePanel.addEventListener(
+    "pointerdown",
+    event => {
+
+        if (event.button !== 0) return;
+
+        const rect = codePanel.getBoundingClientRect();
+        const distanceFromLeft = event.clientX - rect.left;
+
+        if (distanceFromLeft > 10) return;
+
+        isResizingCodePanel = true;
+        resizeStartX = event.clientX;
+        resizeStartWidth = codePanelWidth;
+
+        document.body.classList.add(
+            "resizing-code-panel"
+        );
+
+        codePanel.setPointerCapture(event.pointerId);
+    }
+);
+
+
+document.addEventListener(
+    "pointermove",
+    event => {
+
+        if (!isResizingCodePanel) return;
+
+        const delta = event.clientX - resizeStartX;
+        const newWidth = Math.max(
+            0,
+            Math.min(
+                maxCodePanelWidth,
+                resizeStartWidth - delta
+            )
+        );
+
+        codePanelWidth = newWidth;
+
+        updateCodePanelWidth();
+    }
+);
+
+
+const stopCodePanelResize =
+    event => {
+
+        if (!isResizingCodePanel) return;
+
+        isResizingCodePanel = false;
+
+        document.body.classList.remove(
+            "resizing-code-panel"
+        );
+
+        if (
+            codePanel.hasPointerCapture(
+                event.pointerId
+            )
+        ) {
+
+            codePanel.releasePointerCapture(
+                event.pointerId
+            );
+        }
+    };
+
+
+document.addEventListener(
+    "pointerup",
+    stopCodePanelResize
+);
+
+document.addEventListener(
+    "pointercancel",
+    stopCodePanelResize
+);
+
+
+/* =========================================================
    PAN WORKSPACE
 ========================================================= */
 
@@ -2788,6 +2890,11 @@ const themeToggle =
         "themeToggle"
     );
 
+const readableFontToggle =
+    document.getElementById(
+        "readableFontToggle"
+    );
+
 
 function setTheme(theme) {
 
@@ -2885,6 +2992,43 @@ if (themeToggle) {
         ) || "dark"
     );
 }
+
+
+function setReadableFont(enabled) {
+
+    document.body.classList.toggle(
+        "readable-font",
+        enabled
+    );
+
+    readableFontToggle?.setAttribute(
+        "aria-pressed",
+        String(enabled)
+    );
+
+    localStorage.setItem(
+        "minecraft-blockcode-readable-font",
+        String(enabled)
+    );
+}
+
+
+readableFontToggle?.addEventListener(
+    "click",
+    () => {
+        setReadableFont(
+            !document.body.classList.contains(
+                "readable-font"
+            )
+        );
+    }
+);
+
+setReadableFont(
+    localStorage.getItem(
+        "minecraft-blockcode-readable-font"
+    ) === "true"
+);
 
 
 /* =========================================================

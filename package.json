@@ -1,18 +1,23 @@
 {
   "name": "BlockSkript",
-  "version": "26.8.9",
-  "description": "BlockSkript - kreator skript do minecraft",
+  "version": "26.9.1",
+  "description": "BlockSkript - kreator skryptów do Minecraft",
   "main": "main.js",
   "author": {
     "name": "Sebbeek"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sbkzaw2000-maker/blockskript.git"
+  },
+  "homepage": "https://github.com/sbkzaw2000-maker/blockskript",
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
     "build": "electron-builder --win nsis",
     "build:linux": "electron-builder --linux AppImage",
     "dist": "electron-builder",
-    "release": "node release.js"
+    "release": "electron-builder --publish always"
   },
   "dependencies": {
     "express": "^4.21.2",
@@ -20,14 +25,16 @@
   },
   "devDependencies": {
     "electron": "^38.1.0",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.15.3"
   },
   "build": {
     "appId": "pl.tornadocode.blockskript",
     "productName": "BlockSkript",
+
     "directories": {
       "output": "dist"
     },
+
     "files": [
       "main.js",
       "preload.js",
@@ -35,6 +42,12 @@
       "public/**/*",
       "package.json"
     ],
+
+    "releaseInfo": {
+      "releaseName": "BlockSkript v26.9.1",
+      "releaseNotesFile": "CHANGELOG.md"
+    },
+
     "win": {
       "icon": "public/icon.ico",
       "target": [
@@ -47,6 +60,7 @@
       ],
       "artifactName": "BlockSkript-Setup-${version}.${ext}"
     },
+
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
@@ -54,11 +68,13 @@
       "createStartMenuShortcut": true,
       "shortcutName": "BlockSkript"
     },
-    "publish": {
-      "provider": "github",
-      "owner": "sbkzaw2000-maker",
-      "repo": "blockskript",
-      "releaseType": "release"
-    }
+
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "sbkzaw2000-maker",
+        "repo": "blockskript"
+      }
+    ]
   }
 }
