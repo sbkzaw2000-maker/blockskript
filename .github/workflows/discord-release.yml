@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Tag istniejącego Release, np. v26.8.6"
+        description: "Tag istniejącego Release, np. 'v26.9.1'"
         required: true
         type: string
 
@@ -123,11 +123,11 @@ jobs:
               "username": "BlockSkript",
               "embeds": [
                   {
-                      "title": f"# BlockSkript {version}",
+                      "title": f"BlockSkript {version}",
                       "description": description,
                       "color": 5763719,
                       "footer": {
-                          "text": "BlockSkript • GitHub Releases"
+                          "text": "BlockSkript • Sebbeek"
                       }
                   }
               ]
@@ -144,7 +144,7 @@ jobs:
               method="POST",
               headers={
                   "Content-Type": "application/json",
-                  "User-Agent": "BlockSkript-GitHub-Actions"
+                  "User-Agent": "BlockSkript"
               }
           )
 
