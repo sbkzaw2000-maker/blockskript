@@ -127,7 +127,7 @@ jobs:
                       "description": description,
                       "color": 5763719,
                       "footer": {
-                          "text": "BlockSkript • Sebbeek"
+                          "text": "BlockSkript • Automatyczne"
                       }
                   }
               ]
