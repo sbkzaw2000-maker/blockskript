@@ -3204,9 +3204,9 @@ generateAiBtn?.addEventListener("click", async () => {
             throw new Error(result?.message || "Nie udało się wygenerować skryptu.");
         }
 
-        aiResult.value = result.code
-            .replace(/^```(?:skript|sk)?\s*/i, "")
-            .replace(/\s*```$/i, "")
+        aiResult.value = String(result.code)
+            .replace(/^```[^\n]*\n?/i, "")
+            .replace(/\n?```$/i, "")
             .trim();
         applyAiBtn.disabled = false;
         showToast("AI wygenerowało skrypt.");

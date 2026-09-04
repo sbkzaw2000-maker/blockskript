@@ -9,14 +9,13 @@ Sprzedaż plików instalacyjnych jest zabroniona (nie dotyczy tornadocode)
 #### Pomoc / więcej informacji: https://dc.gg/tornadocode.pl
 
 ## Asystent AI
-Funkcje generowania i poprawiania kodu Skript działają lokalnie przez [Ollama](https://ollama.com/). Zainstaluj Ollama, a następnie w terminalu wykonaj:
+Funkcje generowania i poprawiania kodu Skript działają lokalnie przez [Ollama](https://ollama.com/). Aplikacja automatycznie sprawdza Ollama przy uruchomieniu. Jeśli jej brakuje, pobiera i instaluje ją bez wyświetlania okna, a następnie pobiera model:
 
 ```cmd
-ollama pull qwen2.5-coder:7b
 npm start
 ```
 
-Opcjonalnie można zmienić model przez `OLLAMA_MODEL`, np. `set OLLAMA_MODEL=llama3.2` przed `npm start`. AI ma instrukcję, aby generować wyłącznie kod Skript.
+Pierwsze uruchomienie wymaga internetu i pobiera około 1,5 GB instalatora Ollama oraz 4,7 GB modelu. Kolejne uruchomienia korzystają z lokalnych plików. Opcjonalnie można zmienić model przez `OLLAMA_MODEL`.
 
 ### WERSJA ANGIELSKA
 ### ENGLISH VERSION
