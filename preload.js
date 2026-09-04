@@ -26,5 +26,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
 
     // O programie
-    showAbout: () => ipcRenderer.invoke('show-about')
+    showAbout: () => ipcRenderer.invoke('show-about'),
+
+    // Asystent AI
+    generateAi: (prompt) => ipcRenderer.invoke('generate-ai', { prompt })
 });

@@ -33,6 +33,7 @@
       <button id="exampleBtn" class="secondary">★ Przykład</button>
       <button id="saveBtn" class="secondary">💾 Zapisz</button>
       <button id="copyBtn" class="secondary">📋 Kopiuj kod</button>
+      <button id="aiBtn" class="ai-button">✦ AI</button>
       <button id="exportBtn" class="primary">⬇ Eksportuj .sk</button>
     </div>
   </header>
@@ -225,6 +226,26 @@
         <button id="closeTemplatesBtn" class="modal-close" aria-label="Zamknij">×</button>
       </div>
       <div id="templatesList" class="templates-list"></div>
+    </div>
+  </div>
+  <div id="aiModal" class="modal" hidden>
+    <div class="modal-panel ai-panel" role="dialog" aria-modal="true" aria-labelledby="aiTitle">
+      <div class="modal-head">
+        <h2 id="aiTitle">Asystent AI Skript</h2>
+        <button id="closeAiBtn" class="modal-close" aria-label="Zamknij">×</button>
+      </div>
+      <div class="ai-content">
+        <label for="aiPrompt">Co ma robić skrypt?</label>
+        <textarea id="aiPrompt" rows="5" placeholder="Np. Gdy gracz dołączy, wyślij mu zieloną wiadomość powitalną i daj 10 punktów."></textarea>
+        <div class="ai-actions">
+          <button id="generateAiBtn" class="primary">✦ Wygeneruj skrypt</button>
+          <button id="improveAiBtn" class="secondary">Popraw obecny kod</button>
+          <button id="applyAiBtn" class="secondary" disabled>Wstaw do edytora</button>
+        </div>
+        <label for="aiResult">Wynik</label>
+        <textarea id="aiResult" class="ai-result" rows="10" readonly placeholder="Tutaj pojawi się wygenerowany kod Skript."></textarea>
+        <p class="ai-note">Działa lokalnie przez Ollama. Domyślny model: <code>qwen2.5-coder:7b</code>.</p>
+      </div>
     </div>
   </div>
   <div id="loadingOverlay" class="loading-overlay" role="status" aria-live="polite">

@@ -357,6 +357,15 @@ body.light-theme #code {
   background: #2563eb;
 }
 
+.ai-button {
+  background: #0f766e;
+  border: 1px solid #2dd4bf;
+}
+
+.ai-button:hover {
+  filter: brightness(1.12);
+}
+
 .secondary {
   background: #1c2633;
   border: 1px solid #304052;
@@ -1138,4 +1147,68 @@ body.light-theme .loading-spinner {
     to {
         transform: translateX(400%);
     }
+}
+
+.ai-panel {
+  width: min(680px, 100%);
+}
+
+.ai-content {
+  display: grid;
+  gap: 9px;
+  padding: 16px 18px 18px;
+}
+
+.ai-content label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ai-content textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--panel2);
+  color: var(--text);
+  font: inherit;
+  line-height: 1.45;
+}
+
+.ai-content textarea:focus {
+  outline: 2px solid #2dd4bf;
+  outline-offset: 1px;
+}
+
+.ai-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 3px 0 5px;
+}
+
+.ai-actions button {
+  padding: 9px 12px;
+  border-radius: 7px;
+}
+
+.ai-actions button:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+}
+
+.ai-result {
+  min-height: 170px;
+  color: #a7f3d0 !important;
+  background: #071b1a !important;
+  font-family: Consolas, monospace !important;
+  font-size: 12px;
+}
+
+.ai-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
 }

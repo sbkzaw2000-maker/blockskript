@@ -3143,6 +3143,91 @@ document.getElementById(
     }
 );
 
+const aiModal = document.getElementById("aiModal");
+const aiPrompt = document.getElementById("aiPrompt");
+const aiResult = document.getElementById("aiResult");
+const generateAiBtn = document.getElementById("generateAiBtn");
+const improveAiBtn = document.getElementById("improveAiBtn");
+const applyAiBtn = document.getElementById("applyAiBtn");
+
+document.getElementById("aiBtn")?.addEventListener("click", () => {
+    aiModal.hidden = false;
+    aiPrompt?.focus();
+});
+
+document.getElementById("closeAiBtn")?.addEventListener("click", () => {
+    aiModal.hidden = true;
+});
+
+improveAiBtn?.addEventListener("click", () => {
+    const currentCode = codeEl?.textContent.trim();
+
+    if (!currentCode) {
+        showToast("Najpierw dodaj klocki do skryptu.");
+        return;
+    }
+
+    aiPrompt.value = [
+        "Popraw ten skrypt Skript. Zachowaj jego cel, napraw błędy składni i zwróć wyłącznie kompletny kod:",
+        "",
+        currentCode
+    ].join("\n");
+    aiPrompt.focus();
+});
+
+aiModal?.addEventListener("click", event => {
+    if (event.target === aiModal) aiModal.hidden = true;
+});
+
+generateAiBtn?.addEventListener("click", async () => {
+    const prompt = aiPrompt.value.trim();
+
+    if (!prompt) {
+        showToast("Wpisz opis skryptu.");
+        aiPrompt.focus();
+        return;
+    }
+
+    if (!window.electronAPI?.generateAi) {
+        showToast("Asystent AI jest dostępny w aplikacji desktopowej.");
+        return;
+    }
+
+    generateAiBtn.disabled = true;
+    applyAiBtn.disabled = true;
+    generateAiBtn.textContent = "Generowanie...";
+
+    try {
+        const result = await window.electronAPI.generateAi(prompt);
+
+        if (!result?.ok) {
+            throw new Error(result?.message || "Nie udało się wygenerować skryptu.");
+        }
+
+        aiResult.value = result.code
+            .replace(/^```(?:skript|sk)?\s*/i, "")
+            .replace(/\s*```$/i, "")
+            .trim();
+        applyAiBtn.disabled = false;
+        showToast("AI wygenerowało skrypt.");
+    } catch (error) {
+        showToast(error?.message || "Nie udało się wygenerować skryptu.");
+    } finally {
+        generateAiBtn.disabled = false;
+        generateAiBtn.textContent = "✦ Wygeneruj skrypt";
+    }
+});
+
+applyAiBtn?.addEventListener("click", () => {
+    const source = aiResult.value.trim();
+
+    if (!source) return;
+
+    importSkript(source);
+    aiModal.hidden = true;
+    showToast("Skrypt AI wstawiono do edytora.");
+});
+
 
 document.getElementById(
     "optionsModal"

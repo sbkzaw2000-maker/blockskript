@@ -197,6 +197,74 @@ ipcMain.handle('show-about', async () => {
 });
 
 // ==========================================
+// ASYSTENT AI
+// ==========================================
+
+ipcMain.handle('generate-ai', async (_event, request = {}) => {
+  const prompt = String(request.prompt || '').trim().slice(0, 12000);
+
+  if (!prompt) {
+    return {
+      ok: false,
+      message: 'Wpisz opis skryptu, który ma przygotować AI.'
+    };
+  }
+
+  try {
+    const response = await fetch(
+      process.env.OLLAMA_URL || 'http://127.0.0.1:11434/api/chat',
+      {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: process.env.OLLAMA_MODEL || 'qwen2.5-coder:7b',
+        stream: false,
+        options: { temperature: 0.2 },
+        messages: [
+          {
+            role: 'system',
+            content: [
+              'Jesteś lokalnym generatorem kodu Minecraft Skript.',
+              'Twoim jedynym zadaniem jest generowanie lub poprawianie skryptów Skript.',
+              'Zwracaj wyłącznie kompletny kod Skript bez markdownu, objaśnień, komentarzy i backticków.',
+              'Nie odpowiadaj na pytania niezwiązane z kodem Skript.',
+              'Kod ma być poprawny składniowo i kompatybilny z Minecraft 1.21+.'
+            ].join(' ')
+          },
+          { role: 'user', content: prompt }
+        ]
+      })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data?.error || `Błąd Ollama (${response.status})`);
+    }
+
+    const code = data?.message?.content?.trim();
+
+    if (!code) {
+      throw new Error('AI nie zwróciło kodu Skript.');
+    }
+
+    return { ok: true, code };
+  } catch (error) {
+    console.error('Błąd asystenta AI:', error);
+    return {
+      ok: false,
+      message:
+        error?.cause?.code === 'ECONNREFUSED'
+          ? 'Ollama nie działa. Uruchom Ollama i pobierz model qwen2.5-coder:7b.'
+          : error?.message || 'Nie udało się połączyć z lokalnym AI.'
+    };
+  }
+});
+
+// ==========================================
 // START APLIKACJI
 // ==========================================
 
